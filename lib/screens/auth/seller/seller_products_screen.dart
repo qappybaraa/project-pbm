@@ -55,8 +55,11 @@ class _ProductListTile extends StatelessWidget {
             const PopupMenuItem(value: 'delete', child: Row(children: [Icon(Icons.delete_outline, size: 18, color: Colors.red), SizedBox(width: 8), Text('Hapus', style: TextStyle(color: Colors.red))])),
           ],
           onSelected: (v) {
-            if (v == 'edit') Navigator.push(context, MaterialPageRoute(builder: (_) => AddEditProductScreen(product: product)));
-            else if (v == 'delete') _confirmDelete(context);
+            if (v == 'edit') {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => AddEditProductScreen(product: product)));
+            } else if (v == 'delete') {
+              _confirmDelete(context);
+            }
           },
         ),
       ),

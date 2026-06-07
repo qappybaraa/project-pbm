@@ -2,13 +2,35 @@
 // lib/providers/app_provider.dart
 // ============================================================
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import '../models/user_model.dart';
 import '../models/product_model.dart';
 import '../models/order_model.dart';
 import '../data/mock_data.dart';
+import '../services/cat_api_service.dart';
 
 class AppProvider extends ChangeNotifier {
+  AppProvider() {
+    Future.microtask(_loadCatImages);
+  }
+
+  Future<void> _loadCatImages() async {
+    final count = MockData.products.length;
+    final urls = await CatApiService.fetchCatImageUrls(count);
+    if (urls.isEmpty) return;
+
+    for (var i = 0; i < count; i++) {
+      var url = urls[i % urls.length];
+      // Di web, CanvasKit tidak bisa render gambar cross-origin langsung.
+      // wsrv.nl adalah image proxy yang menambahkan header CORS.
+      if (kIsWeb) {
+        url = 'https://wsrv.nl/?url=${Uri.encodeComponent(url)}';
+      }
+      MockData.products[i] = MockData.products[i].copyWith(imageUrls: [url]);
+    }
+    notifyListeners();
+  }
   // ---- AUTH ----
   UserModel? _currentUser;
   UserModel? get currentUser => _currentUser;

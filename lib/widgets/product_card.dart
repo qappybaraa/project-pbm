@@ -23,7 +23,7 @@ class ProductCard extends StatelessWidget {
                   Image.network(
                     product.imageUrls.isNotEmpty
                         ? product.imageUrls.first
-                        : 'https://placehold.co/300x200/gray/white?text=No+Image',
+                        : 'https://wsrv.nl/?url=picsum.photos/300/200',
                     height: 130,
                     width: double.infinity,
                     fit: BoxFit.cover,

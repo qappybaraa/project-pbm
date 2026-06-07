@@ -126,7 +126,7 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
     if (!_formKey.currentState!.validate()) return;
     final provider = context.read<AppProvider>();
     final user = provider.currentUser!;
-    final images = _imagePaths.isNotEmpty ? _imagePaths : (widget.product?.imageUrls ?? ['https://placehold.co/300x200/gray/white?text=No+Image']);
+    final images = _imagePaths.isNotEmpty ? _imagePaths : (widget.product?.imageUrls ?? ['https://picsum.photos/seed/no-image/300/200']);
 
     if (_isEdit) {
       provider.updateProduct(widget.product!.copyWith(name: _nameCtrl.text.trim(), description: _descCtrl.text.trim(), price: double.tryParse(_priceCtrl.text) ?? widget.product!.price, category: _category, condition: _condition, imageUrls: images, stock: int.tryParse(_stockCtrl.text) ?? widget.product!.stock));

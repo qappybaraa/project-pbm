@@ -11,7 +11,6 @@ import '../../../utils/app_theme.dart';
 
 import '../../../widgets/product_card.dart';
 
-import '../login_screen.dart';
 import 'product_detail_screen.dart';
 import 'cart_screen.dart';
 import 'order_history_screen.dart';
@@ -41,7 +40,6 @@ class _BuyerHomeScreenState extends State<BuyerHomeScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<AppProvider>();
-    final user = provider.currentUser!;
     final cartCount = provider.cart.length;
 
     return Scaffold(
@@ -60,7 +58,7 @@ class _BuyerHomeScreenState extends State<BuyerHomeScreen> {
                   top: 6,
                   child: Container(
                     padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(color: AppTheme.error, shape: BoxShape.circle),
+                    decoration: const BoxDecoration(color: AppTheme.error, shape: BoxShape.circle),
                     child: Text('$cartCount', style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
                   ),
                 ),
@@ -95,12 +93,12 @@ class _BuyerHomeScreenState extends State<BuyerHomeScreen> {
                 margin: const EdgeInsets.all(16),
                 height: 120,
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(colors: [AppTheme.primary, AppTheme.primaryDark]),
+                  gradient: const LinearGradient(colors: [AppTheme.primary, AppTheme.primaryDark]),
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: Row(
+                child: const Row(
                   children: [
-                    const Expanded(
+                    Expanded(
                       child: Padding(
                         padding: EdgeInsets.all(16),
                         child: Column(
@@ -114,7 +112,7 @@ class _BuyerHomeScreenState extends State<BuyerHomeScreen> {
                         ),
                       ),
                     ),
-                    const Padding(
+                    Padding(
                       padding: EdgeInsets.only(right: 16),
                       child: Text('🐶🐱\n🐹🐰', style: TextStyle(fontSize: 32)),
                     ),
@@ -159,7 +157,7 @@ class _BuyerHomeScreenState extends State<BuyerHomeScreen> {
                               color: selected ? AppTheme.primary : Colors.white,
                               borderRadius: BorderRadius.circular(14),
                               border: Border.all(color: selected ? AppTheme.primary : Colors.grey.shade200),
-                              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4)],
+                              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4)],
                             ),
                             child: Icon(cat['icon'] as IconData, color: selected ? Colors.white : Colors.grey[600], size: 26),
                           ),
@@ -174,7 +172,7 @@ class _BuyerHomeScreenState extends State<BuyerHomeScreen> {
               const SizedBox(height: 12),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Text('${products.length} Produk Ditemukan', style: TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
+                child: Text('${products.length} Produk Ditemukan', style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
               ),
               const SizedBox(height: 8),
             ],

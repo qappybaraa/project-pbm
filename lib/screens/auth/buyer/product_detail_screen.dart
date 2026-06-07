@@ -22,7 +22,7 @@ class ProductDetailScreen extends StatelessWidget {
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
               background: Image.network(
-                product.imageUrls.isNotEmpty ? product.imageUrls.first : 'https://placehold.co/400x300/gray/white?text=No+Image',
+                product.imageUrls.isNotEmpty ? product.imageUrls.first : 'https://picsum.photos/seed/no-image/400/300',
                 fit: BoxFit.cover,
                 errorBuilder: (_, __, ___) => Container(color: Colors.grey[200], child: const Icon(Icons.image_not_supported, size: 60)),
               ),

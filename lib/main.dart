@@ -1,3 +1,4 @@
+import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/app_provider.dart';
@@ -5,7 +6,12 @@ import 'utils/app_theme.dart';
 import 'screens/auth/login_screen.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    DevicePreview(
+      enabled: true,
+      builder: (_) => const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -19,6 +25,8 @@ class MyApp extends StatelessWidget {
         title: 'PawMart',
         theme: AppTheme.theme,
         debugShowCheckedModeBanner: false,
+        locale: DevicePreview.locale(context),
+        builder: DevicePreview.appBuilder,
         home: const LoginScreen(),
       ),
     );
