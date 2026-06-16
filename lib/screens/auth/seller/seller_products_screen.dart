@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../providers/app_provider.dart';
 import '../../../models/product_model.dart';
 import '../../../utils/app_theme.dart';
+import '../../../services/api_service.dart';
 import 'add_edit_product_screen.dart';
 
 class SellerProductsScreen extends StatelessWidget {
@@ -49,23 +50,70 @@ class _ProductListTile extends StatelessWidget {
             Text('Stok: ${product.stock}', style: const TextStyle(fontSize: 11, color: Colors.grey)),
           ]),
         ]),
-        trailing: PopupMenuButton(
-          itemBuilder: (_) => [
-            const PopupMenuItem(value: 'edit', child: Row(children: [Icon(Icons.edit_outlined, size: 18), SizedBox(width: 8), Text('Edit')])),
-            const PopupMenuItem(value: 'delete', child: Row(children: [Icon(Icons.delete_outline, size: 18, color: Colors.red), SizedBox(width: 8), Text('Hapus', style: TextStyle(color: Colors.red))])),
-          ],
-          onSelected: (v) {
-            if (v == 'edit') {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => AddEditProductScreen(product: product)));
-            } else if (v == 'delete') {
-              _confirmDelete(context);
-            }
-          },
+          trailing: PopupMenuButton<String>(
+  itemBuilder: (_) => [
+    const PopupMenuItem(
+      value: 'submit',
+      child: Text('Submit PBM'),
+    ),
+    const PopupMenuItem(
+      value: 'edit',
+      child: Text('Edit'),
+    ),
+    const PopupMenuItem(
+      value: 'delete',
+      child: Text('Hapus'),
+    ),
+  ],
+  onSelected: (v) async {
+    if (v == 'submit') {
+      try {
+        final api = ApiService();
+
+        final token = await api.login();
+
+        if (token == null) {
+          throw Exception('Login API gagal');
+        }
+
+        final result = await api.submitProduct(
+          token: token,
+          name: product.name,
+          price: product.price.toInt(),
+          description: product.description,
+        );
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              result
+                  ? 'Submit berhasil'
+                  : 'Submit gagal',
+            ),
+          ),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+          ),
+        );
+      }
+    } else if (v == 'edit') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => AddEditProductScreen(product: product),
         ),
+      );
+    } else if (v == 'delete') {
+      _confirmDelete(context);
+    }
+  },
+),
       ),
     );
   }
-
   void _confirmDelete(BuildContext context) {
     showDialog(context: context, builder: (_) => AlertDialog(
       title: const Text('Hapus Produk?'), content: Text('Apakah kamu yakin ingin menghapus "${product.name}"?'),
