@@ -19,13 +19,14 @@ class SellerOrdersScreen extends StatelessWidget {
       itemBuilder: (_, i) {
         final order = orders[i];
         final statusColor = _statusColor(order.status);
+        final shortId = order.id.substring(0, order.id.length.clamp(0, 8));
         return Card(
           margin: const EdgeInsets.only(bottom: 12),
           child: Padding(
             padding: const EdgeInsets.all(14),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                Text('Order #${order.id.substring(6, 16)}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                Text('Order #$shortId', style: const TextStyle(fontWeight: FontWeight.bold)),
                 Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4), decoration: BoxDecoration(color: statusColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20), border: Border.all(color: statusColor)), child: Text(order.statusLabel, style: TextStyle(color: statusColor, fontSize: 12, fontWeight: FontWeight.bold))),
               ]),
               const SizedBox(height: 6),

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../models/product_model.dart';
 import '../../../providers/app_provider.dart';
 import '../../../utils/app_theme.dart';
+import '../../../services/chat_service.dart';
 import 'cart_screen.dart';
 
 class ProductDetailScreen extends StatelessWidget {
@@ -85,7 +87,7 @@ class ProductDetailScreen extends StatelessWidget {
               child: OutlinedButton.icon(
                 icon: const Icon(Icons.chat_bubble_outline),
                 label: const Text('Chat Penjual'),
-                onPressed: () => _showChat(context),
+                onPressed: () => _showChat(context, provider),
                 style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
               ),
             ),
@@ -112,32 +114,80 @@ class ProductDetailScreen extends StatelessWidget {
 
   String _formatRupiah(double amount) => 'Rp ${amount.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}';
 
-  void _showChat(BuildContext context) {
+  void _showChat(BuildContext context, AppProvider provider) {
+    final currentUser = provider.currentUser!;
+    final chatService = ChatService();
+    final chatId = chatService.getChatId(currentUser.id, product.sellerId, product.id);
+    final TextEditingController msgCtrl = TextEditingController();
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (_) => DraggableScrollableSheet(
         initialChildSize: 0.6, maxChildSize: 0.9, minChildSize: 0.4, expand: false,
-        builder: (_, ctrl) => Column(
+        builder: (_, scrollCtrl) => Column(
           children: [
             const SizedBox(height: 12),
             Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2))),
             Padding(padding: const EdgeInsets.all(16), child: Row(children: [const Icon(Icons.store, color: AppTheme.primary), const SizedBox(width: 8), Text('Chat dengan ${product.sellerName}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16))])),
             const Divider(height: 1),
+
+            // ── LIVE MESSAGES ──
             Expanded(
-              child: ListView(controller: ctrl, padding: const EdgeInsets.all(16), children: [
-                _chatBubble(product.sellerName, 'Halo! Ada yang bisa kami bantu? 😊', false),
-                _chatBubble('Saya', 'Halo, apakah ${product.name} masih tersedia?', true),
-                _chatBubble(product.sellerName, 'Masih tersedia! Stok ada ${product.stock}. Bisa langsung order ya 🐾', false),
-              ]),
+              child: StreamBuilder<QuerySnapshot>(
+                stream: chatService.getMessages(chatId),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return const Center(child: Text('Mulai percakapan...', style: TextStyle(color: Colors.grey)));
+                  }
+                  final docs = snapshot.data!.docs;
+                  return ListView.builder(
+                    controller: scrollCtrl,
+                    padding: const EdgeInsets.all(16),
+                    itemCount: docs.length,
+                    itemBuilder: (_, i) {
+                      final data = docs[i].data() as Map<String, dynamic>;
+                      final isMe = data['senderId'] == currentUser.id;
+                      return _chatBubble(data['senderName'] ?? '', data['message'] ?? '', isMe);
+                    },
+                  );
+                },
+              ),
             ),
+
+            // ── INPUT ──
             Padding(
               padding: EdgeInsets.only(left: 12, right: 12, bottom: MediaQuery.of(context).viewInsets.bottom + 12),
               child: Row(children: [
-                Expanded(child: TextField(decoration: InputDecoration(hintText: 'Ketik pesan...', contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10), border: OutlineInputBorder(borderRadius: BorderRadius.circular(24))))),
+                Expanded(
+                  child: TextField(
+                    controller: msgCtrl,
+                    decoration: InputDecoration(
+                      hintText: 'Ketik pesan...',
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(24)),
+                    ),
+                  ),
+                ),
                 const SizedBox(width: 8),
-                const CircleAvatar(backgroundColor: AppTheme.primary, child: Icon(Icons.send, color: Colors.white, size: 18)),
+                GestureDetector(
+                  onTap: () async {
+                    final text = msgCtrl.text.trim();
+                    if (text.isEmpty) return;
+                    msgCtrl.clear();
+                    await chatService.sendMessage(
+                      chatId: chatId,
+                      senderId: currentUser.id,
+                      senderName: currentUser.name,
+                      message: text,
+                    );
+                  },
+                  child: const CircleAvatar(backgroundColor: AppTheme.primary, child: Icon(Icons.send, color: Colors.white, size: 18)),
+                ),
               ]),
             ),
           ],

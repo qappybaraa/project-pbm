@@ -30,6 +30,7 @@ class _OrderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final statusColor = _statusColor(order.status);
+    final shortId = order.id.substring(0, order.id.length.clamp(0, 8));
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: Padding(
@@ -40,7 +41,7 @@ class _OrderCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Order #${order.id.substring(6)}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                Text('Order #$shortId', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(color: statusColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20), border: Border.all(color: statusColor)),
